@@ -47,8 +47,6 @@ class GameParser():
         :param game_name: Name of the Game
         :return: Raw Page Text
         """
-        print(f"{GAME_WIKI_URL}{game_name}")
-        print("https://strategywiki.org/F-Zero GX")
         target_url = f"{GAME_WIKI_URL}{game_name}"
 
         response = requests.get(target_url)

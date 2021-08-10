@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from controllers import games
+from fastapi_versioning import VersionedFastAPI
 
 app = FastAPI()
 
@@ -13,3 +14,4 @@ def configure_routers():
 
 
 main_config()
+app = VersionedFastAPI(app, version_format='{major}', prefix_format='/v{major}')

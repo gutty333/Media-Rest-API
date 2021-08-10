@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Request
+from configurations.properties import API_VERSION
 from services.game_service import GameParser
+from fastapi_versioning import version
 
 router = APIRouter()
 
 
 @router.get("/api/games/{game_title}")
+@version(API_VERSION)
 def get_game_info(game_title: str, request: Request):
     report = {}
     game_parser = GameParser()

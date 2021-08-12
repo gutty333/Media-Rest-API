@@ -1,12 +1,14 @@
+import json
 import re
+import requests
 from typing import Any
 from typing import Dict, List
-import requests
 from bs4 import BeautifulSoup, ResultSet
 from fastapi import HTTPException, Request
 from starlette.datastructures import QueryParams
 from configurations.properties import OK_STATUS, GAME_WIKI_URL, EXTERNAL_LINK_PREFIX
 from models.attribute_value import AttributeValue
+from services.storage_client import cache_input, check_input_cache
 
 
 class GameParser():
@@ -14,7 +16,7 @@ class GameParser():
     RELEASE_ATTRIBUTE_NAME = "Release date(s)"
 
     def __init__(self):
-        self.game_response: Dict= {}
+        self.game_response: Dict = {}
         self.last_key: str = ""
 
     def create_parser(self, game_name: str) -> BeautifulSoup:
@@ -214,7 +216,15 @@ class GameParser():
         :return: Response with valid API options and respective links
         """
         parser = self.create_parser(game_name)
-        return self.extract_valid_query_params(request.query_params, self.parse_table_of_content(parser))
+        cached_table_of_content = check_input_cache(game_name)
+
+        if not cached_table_of_content:
+            table_of_content = self.parse_table_of_content(parser)
+            cache_input(game_name, json.dumps(table_of_content))
+        else:
+            table_of_content = json.loads(cached_table_of_content)
+
+        return self.extract_valid_query_params(request.query_params, table_of_content)
 
     def extract_valid_query_params(self, request_query_params: QueryParams,
                                    table_of_content_data: Dict[str, List[Dict[str, str]]]) -> Dict:
